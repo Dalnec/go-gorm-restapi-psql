@@ -13,7 +13,11 @@ import (
 
 func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
-	db.DB.Find(&products)
+	// db.DB.Preload("Brand").Preload("Category").Find(&products)
+	// db.DB.Joins("Brand").Find(&products)
+	// db.DB.Find(&products)
+	// db.DB.Model(&products).Association("Brand").Find(&products)
+	db.DB.Joins("Brand").Joins("Category").Find(&products)
 	json.NewEncoder(w).Encode(&products)
 }
 
@@ -27,7 +31,6 @@ func GetProductHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Product not found"))
 		return
 	}
-
 	json.NewEncoder(w).Encode(&product)
 }
 
