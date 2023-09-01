@@ -13,11 +13,11 @@ import (
 
 func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
-	// db.DB.Preload("Brand").Preload("Category").Find(&products)
-	// db.DB.Joins("Brand").Find(&products)
+	if err := db.DB.Preload("Category").Preload("Brand").Preload("User").Find(&products).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	// db.DB.Find(&products)
-	// db.DB.Model(&products).Association("Brand").Find(&products)
-	db.DB.Joins("Brand").Joins("Category").Find(&products)
 	json.NewEncoder(w).Encode(&products)
 }
 
@@ -31,6 +31,7 @@ func GetProductHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Product not found"))
 		return
 	}
+	// db.DB.Model(&product).Association("Brand").Find(&product.BrandID)
 	json.NewEncoder(w).Encode(&product)
 }
 
@@ -38,7 +39,7 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	json.NewDecoder(r.Body).Decode(&product)
 	fmt.Println(product)
-	product.Code =strconv.FormatInt(CountCode(), 10)
+	product.Code = CountCode()
 	createdProduct := db.DB.Create(&product)
 	err := createdProduct.Error
 
@@ -65,10 +66,25 @@ func DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func CountCode() int64 {
+func CountCode() string {
 	var count int64
 	var products models.Product
 
 	db.DB.Find(&products).Count(&count)
-	return count + 1 
+	var code string = strconv.FormatInt(count + 1 , 10)
+	var length = len([]rune(code))
+	if length > 4 {
+		return code
+	} else {
+		var cod string
+		switch length {
+		case 1:
+			cod = "000" + code
+		case 2:
+			cod = "00" + code
+		case 3:
+			cod = "0" + code
+		}
+		return cod
+	}
 }
