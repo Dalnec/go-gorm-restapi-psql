@@ -10,15 +10,34 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
+// 	var products []models.Product
+// 	if err := db.DB.Preload("Category").Preload("Brand").Preload("User").Find(&products).Error; err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	// db.DB.Find(&products)
+// 	json.NewEncoder(w).Encode(&products)
+// }
 func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
-	if err := db.DB.Preload("Category").Preload("Brand").Preload("User").Find(&products).Error; err != nil {
+	descriptionFilter := r.URL.Query().Get("description") // Get the description filter from the query parameters
+
+	// Build the query condition based on the description filter
+	query := db.DB.Preload("Category").Preload("Brand").Preload("User")
+
+	if descriptionFilter != "" {
+		query = query.Where("description LIKE ?", "%"+descriptionFilter+"%")
+	}
+
+	if err := query.Find(&products).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// db.DB.Find(&products)
+
 	json.NewEncoder(w).Encode(&products)
 }
+
 
 func GetProductHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)

@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Dalnec/go-gorm-restapi-psql/db"
@@ -14,7 +13,6 @@ func GetCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var categories []models.Category
-	fmt.Println(categories)
 	db.DB.Find(&categories)
 	json.NewEncoder(w).Encode(&categories)
 }
