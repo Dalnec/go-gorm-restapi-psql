@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,7 +37,6 @@ func GetProductHandler(w http.ResponseWriter, r *http.Request) {
 func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	json.NewDecoder(r.Body).Decode(&product)
-	fmt.Println(product)
 	product.Code = CountCode()
 	createdProduct := db.DB.Create(&product)
 	err := createdProduct.Error
