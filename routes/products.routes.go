@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -56,15 +57,34 @@ func GetProductHandler(w http.ResponseWriter, r *http.Request) {
 func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	json.NewDecoder(r.Body).Decode(&product)
-	product.Code = CountCode()
-	createdProduct := db.DB.Create(&product)
-	err := createdProduct.Error
-
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+	// val, ok := product["ID"]
+	if (product.Code == "")  {		
+		product.Code = CountCode()
 	}
+	// createdProduct := db.DB.Create(&product)
+	// err := createdProduct.Error
 
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte(err.Error()))
+	// }
+	db.DB.Save(&product)
+	json.NewEncoder(w).Encode(&product)
+}
+
+func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+	// params := mux.Vars(r)
+	var product models.Product
+	// db.DB.First(&product, params["ID"])
+	json.NewDecoder(r.Body).Decode(&product)
+	fmt.Println(product)
+
+	if product.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Product not found"))
+		return
+	}
+	db.DB.Save(&product)
 	json.NewEncoder(w).Encode(&product)
 }
 
