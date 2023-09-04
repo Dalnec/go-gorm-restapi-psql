@@ -25,7 +25,7 @@ func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 	descriptionFilter := r.URL.Query().Get("description") // Get the description filter from the query parameters
 
 	// Build the query condition based on the description filter
-	query := db.DB.Preload("Category").Preload("Brand").Preload("User")
+	query := db.DB.Preload("Category").Preload("Brand").Preload("User").Preload("Prices")
 
 	if descriptionFilter != "" {
 		query = query.Where("description LIKE ?", "%"+descriptionFilter+"%")
@@ -61,6 +61,10 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 	if (product.Code == "")  {		
 		product.Code = CountCode()
 	}
+
+	if product.ProductID == nil {
+        product.Product = nil
+    }
 	// createdProduct := db.DB.Create(&product)
 	// err := createdProduct.Error
 

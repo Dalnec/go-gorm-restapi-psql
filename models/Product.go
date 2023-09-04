@@ -39,7 +39,7 @@ type Product struct {
 	CategoryID  uint   `json:"category_id"`
 	BrandID     uint   `json:"brand_id"`
 	UserID      uint   `json:"user_id"`
-	ProductID   uint   `gorm:"default:null" json:"product_id"`
+	ProductID   *uint   `gorm:"default:null" json:"product_id"`
 
 	Prices     []Prices `json:"prices"`
 	Products     []Product `gorm:"foreignKey:ID" json:"products"`
