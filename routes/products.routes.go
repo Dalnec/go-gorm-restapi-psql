@@ -20,10 +20,11 @@ import (
 // 	// db.DB.Find(&products)
 // 	json.NewEncoder(w).Encode(&products)
 // }
+
 func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
-	descriptionFilter := r.URL.Query().Get("description") // Get the description filter from the query parameters
-
+	descriptionFilter := r.URL.Query().Get("description")
+	// fmt.Println(descriptionFilter)
 	// Build the query condition based on the description filter
 	query := db.DB.Preload("Category").Preload("Brand").Preload("User").Preload("Prices")
 
@@ -31,11 +32,11 @@ func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 		query = query.Where("description LIKE ?", "%"+descriptionFilter+"%")
 	}
 
-	if err := query.Find(&products).Error; err != nil {
+	if err := query.Order("ID desc").Find(&products).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	// fmt.Println(query.RowsAffected)
 	json.NewEncoder(w).Encode(&products)
 }
 
