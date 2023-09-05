@@ -27,8 +27,6 @@ type Product struct {
 	gorm.Model
 	Code       	string `gorm:"not null;unique_index" json:"code"`
 	Description string `gorm:"not null" json:"description"`
-	// Price 		float32 `sql:"type:decimal(10,2);" json:"price"`
-	// MinPrice 	float32 `sql:"type:decimal(10,2);" json:"minprice"`
 	Active      bool   `gorm:"default:true" json:"active"`
 
 	Category   Category `json:"category"`
@@ -41,10 +39,9 @@ type Product struct {
 	UserID      uint   `json:"user_id"`
 	ProductID   *uint   `gorm:"default:null" json:"product_id"`
 
-	Prices     []Prices `gorm:"foreignKey:ID" json:"prices"`
+	Prices     []Prices `json:"prices"`
 	Products     []Product `gorm:"foreignKey:ID" json:"products"`
 }
-// image
 
 type Prices struct {
 	gorm.Model
