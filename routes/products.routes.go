@@ -21,12 +21,32 @@ import (
 // 	json.NewEncoder(w).Encode(&products)
 // }
 
+func GetProductAssociationHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var product models.Product
+	db.DB.First(&product, params["id"])
+
+	if product.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Product not found"))
+		return
+	}
+	// db.DB.Model(&product).Association("Products").Find(&product.ProductID)
+
+	products := []models.Product{}
+	db.DB.Preload("Prices").Where("product_id = ?", product.ID).Find(&products)
+	product.Products = products
+	json.NewEncoder(w).Encode(&product)
+}
+
+
 func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
 	descriptionFilter := r.URL.Query().Get("description")
-	// fmt.Println(descriptionFilter)
+
 	// Build the query condition based on the description filter
-	query := db.DB.Preload("Category").Preload("Brand").Preload("User").Preload("Prices")
+	query := db.DB.Preload("Category").Preload("Brand").
+		Preload("User").Preload("Prices").Where("product_id IS NULL")
 
 	if descriptionFilter != "" {
 		query = query.Where("description LIKE ?", "%"+descriptionFilter+"%")
@@ -36,7 +56,6 @@ func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// fmt.Println(query.RowsAffected)
 	json.NewEncoder(w).Encode(&products)
 }
 
@@ -80,6 +99,22 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
     }
 	// db.DB.Save(&product)
 	json.NewEncoder(w).Encode(&product)
+}
+
+func BatchCreateProductsHandler(w http.ResponseWriter, r *http.Request) {
+	// var product models.Product
+	var products []models.Product
+	json.NewDecoder(r.Body).Decode(&products)
+
+	for i, product := range products {
+		if product.Code == "" {
+			// Generate a code if it's not provided
+            products[i].Code = CountCode() 
+        }
+	}
+	db.DB.Create(&products)
+
+	json.NewEncoder(w).Encode(&products)
 }
 
 func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {

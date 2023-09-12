@@ -41,7 +41,9 @@ func main() {
 	// // products routes
 	s.HandleFunc("/products", routes.GetProductsHandler).Methods("GET")
 	s.HandleFunc("/products/{id}", routes.GetProductHandler).Methods("GET")
+	s.HandleFunc("/products-associations/{id}", routes.GetProductAssociationHandler).Methods("GET")
 	s.HandleFunc("/products", routes.CreateProductHandler).Methods("POST")
+	s.HandleFunc("/products-batch", routes.BatchCreateProductsHandler).Methods("POST")
 	// s.HandleFunc("/products/{id}/", routes.UpdateProductHandler).Methods("PUT")
 	// // Catergories routes
 	s.HandleFunc("/categories", routes.GetCategoriesHandler).Methods("GET")

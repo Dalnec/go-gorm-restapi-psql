@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"encoding/json"
+
+	"gorm.io/gorm"
+)
 
 type Measure struct {
 	gorm.Model
@@ -55,4 +59,15 @@ type Prices struct {
 
 	ProductID   uint   `json:"product_id"`
 	MeasureID	uint   `json:"measure_id"`
+}
+
+func (p Product) MarshalJSON() ([]byte, error) {
+    type Alias Product
+    return json.Marshal(&struct {
+        *Alias
+        ProductID interface{} `json:"product_id"`
+    }{
+        Alias: (*Alias)(&p),
+        ProductID: p.ProductID,
+    })
 }
