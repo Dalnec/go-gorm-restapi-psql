@@ -87,16 +87,16 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
     }
 
 	if err := db.DB.Save(&product).Error; err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	for _, price := range product.Prices {
+		if err := db.DB.Save(&price).Error; err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
 
-    for _, price := range product.Prices {
-        if err := db.DB.Save(&price).Error; err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-    }
 	// db.DB.Save(&product)
 	json.NewEncoder(w).Encode(&product)
 }
