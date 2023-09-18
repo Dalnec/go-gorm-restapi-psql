@@ -46,7 +46,7 @@ func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Build the query condition based on the description filter
 	query := db.DB.Preload("Category").Preload("Brand").
-		Preload("User").Preload("Prices").Where("product_id IS NULL")
+		Preload("User").Preload("Prices").Preload("Prices.Measure").Where("product_id IS NULL")
 
 	if descriptionFilter != "" {
 		query = query.Where("description LIKE ?", "%"+descriptionFilter+"%")
