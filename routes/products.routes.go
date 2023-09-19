@@ -34,7 +34,7 @@ func GetProductAssociationHandler(w http.ResponseWriter, r *http.Request) {
 	// db.DB.Model(&product).Association("Products").Find(&product.ProductID)
 
 	products := []models.Product{}
-	db.DB.Preload("Prices").Where("product_id = ?", product.ID).Find(&products)
+	db.DB.Preload("Prices").Preload("Prices.Measure").Where("product_id = ?", product.ID).Find(&products)
 	product.Products = products
 	json.NewEncoder(w).Encode(&product)
 }
