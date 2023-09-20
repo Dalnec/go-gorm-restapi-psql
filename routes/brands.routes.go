@@ -30,3 +30,8 @@ func CreateBrandsHandler(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(&brand)
 }
+
+func initCreateBrands() {
+	brand := models.Brand{ Description: "-", Active: true } 
+	db.DB.Create(&brand)
+}
