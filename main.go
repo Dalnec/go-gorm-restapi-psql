@@ -1,12 +1,16 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/Dalnec/go-gorm-restapi-psql/db"
 	"github.com/Dalnec/go-gorm-restapi-psql/models"
 	"github.com/Dalnec/go-gorm-restapi-psql/routes"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
 
@@ -15,13 +19,18 @@ func HomeHandler(w http.ResponseWriter, r *http.Request){
 }
 
 func main() {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	port := os.Getenv("SERVER_PORT")
+	if "" == port {
+		port = "4000"
+	}
+	var DSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", os.Getenv("HOST"), os.Getenv("USER"), os.Getenv("PASSWORD"), os.Getenv("DBNAME"), os.Getenv("PORT"))
 
 	// database connection
-	db.DBConnection()
+	db.DBConnection(DSN)
 	// db.DB.Migrator().DropTable(models.User{})
 	db.DB.AutoMigrate(models.Category{})
 	db.DB.AutoMigrate(models.Brand{})
@@ -34,6 +43,7 @@ func main() {
 	// Index route
 	// r.HandleFunc("/", routes.HomeHandler)
 	r.HandleFunc("/", routes.HomeHandler).Methods(http.MethodGet, http.MethodPut, http.MethodPatch, http.MethodOptions)
+	r.HandleFunc("/init", routes.InitHandler).Methods(http.MethodGet, http.MethodPut, http.MethodPatch, http.MethodOptions)
     r.Use(mux.CORSMethodMiddleware(r))
 
 	s := r.PathPrefix("/api").Subrouter()
@@ -65,5 +75,5 @@ func main() {
 	s.HandleFunc("/users/{id}", routes.DeleteUserHandler).Methods("DELETE")
 
 	handler := cors.Default().Handler(r)
-	http.ListenAndServe(":4000", handler)
+	http.ListenAndServe(":" + port, handler)
 }

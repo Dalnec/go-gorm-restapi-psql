@@ -8,9 +8,8 @@ import (
 )
 
 var DB *gorm.DB
-var DSN = "host=localhost user=postgres password=admin dbname=db_products_gorm port=5432"
 
-func DBConnection() {
+func DBConnection(DSN string) {
 	var error error
 	DB, error = gorm.Open(postgres.Open(DSN), &gorm.Config{})
 	if error != nil {
