@@ -7,12 +7,14 @@ import (
 	"os"
 
 	"github.com/Dalnec/go-gorm-restapi-psql/db"
+	"github.com/Dalnec/go-gorm-restapi-psql/middleware"
 	"github.com/Dalnec/go-gorm-restapi-psql/models"
 	"github.com/Dalnec/go-gorm-restapi-psql/routes"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
+
 
 func HomeHandler(w http.ResponseWriter, r *http.Request){
 	w.Write([]byte("Hello World"))
@@ -49,7 +51,7 @@ func main() {
 	s := r.PathPrefix("/api").Subrouter()
 
 	// // products routes
-	s.HandleFunc("/products", routes.GetProductsHandler).Methods("GET")
+	s.HandleFunc("/products", middleware.IsAuthorized(routes.GetProductsHandler)).Methods("GET")
 	s.HandleFunc("/products/{id}", routes.GetProductHandler).Methods("GET")
 	s.HandleFunc("/products-associations/{id}", routes.GetProductAssociationHandler).Methods("GET")
 	s.HandleFunc("/products", routes.CreateProductHandler).Methods("POST")
@@ -69,6 +71,8 @@ func main() {
 	s.HandleFunc("/prices", routes.CreatePricesHandler).Methods("POST")
 
 	// // users routes
+	s.HandleFunc("/signup", routes.SignUp).Methods("POST")
+	s.HandleFunc("/signin", routes.SignIn).Methods("POST")
 	s.HandleFunc("/users", routes.GetUsersHandler).Methods("GET")
 	s.HandleFunc("/users/{id}", routes.GetUserHandler).Methods("GET")
 	s.HandleFunc("/users", routes.PostUserHandler).Methods("POST")
