@@ -25,5 +25,11 @@ func InitHandler(w http.ResponseWriter, r *http.Request) {
 	category := models.Category{ Description: "-", Active: true } 
 	db.DB.Create(&category)
 
+	measureUnit := models.Measure{ Description: "UNIDAD", Active: true } 
+	db.DB.Create(&measureUnit)
+
+	measureDoc := models.Measure{ Description: "DOCENA", Active: true } 
+	db.DB.Create(&measureDoc)
+
 	w.Write([]byte("Init Data Filled Successfully!"))
 }
