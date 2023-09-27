@@ -18,6 +18,7 @@ type Authentication struct {
 }
 
 type Token struct {
+	ID        	uint `json:"id"`
 	Role        string `json:"role"`
 	Email       string `json:"email"`
 	TokenString string `json:"token"`
@@ -126,7 +127,8 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(authUser)
 	if authUser.Email == "" {
 		var err helpers.Error
-		err = helpers.SetError(err, "Username or Password is incorrect")
+		err = helpers.SetError(err, "Correo o Contraseña Incorrectos")
+		w.WriteHeader(http.StatusNotFound)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(err)
 		return
@@ -136,7 +138,8 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 
 	if !check {
 		var err helpers.Error
-		err = helpers.SetError(err, "Username or Password is incorrect")
+		err = helpers.SetError(err, "Correo o Contraseña Incorrectos")
+		w.WriteHeader(http.StatusNotFound)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(err)
 		return
@@ -146,12 +149,14 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var err helpers.Error
 		err = helpers.SetError(err, "Failed to generate token")
+		w.WriteHeader(http.StatusNotFound)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(err)
 		return
 	}
 
 	var token Token
+	token.ID = authUser.ID
 	token.Email = authUser.Email
 	token.Role = authUser.Role
 	token.TokenString = validToken
