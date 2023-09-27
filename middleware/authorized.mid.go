@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Dalnec/go-gorm-restapi-psql/helpers"
 	"github.com/golang-jwt/jwt"
@@ -13,8 +14,8 @@ import (
 //check whether user is authorized or not
 func IsAuthorized(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		if r.Header["Token"] == nil {
+		
+		if r.Header["Authorization"] == nil {
 			var err helpers.Error
 			err = helpers.SetError(err, "No Token Found")
 			json.NewEncoder(w).Encode(err)
@@ -24,7 +25,10 @@ func IsAuthorized(handler http.HandlerFunc) http.HandlerFunc {
 		secretkey := os.Getenv("SECRET")
 		var mySigningKey = []byte(secretkey)
 
-		token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
+		reqToken := r.Header.Get("Authorization")
+		splitToken := strings.Split(reqToken, "Bearer ")
+		reqToken = splitToken[1]
+		token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("There was an error in parsing token.")
 			}

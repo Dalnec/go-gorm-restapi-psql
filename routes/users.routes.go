@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -124,7 +123,6 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 
 	var authUser models.User
 	db.DB.Where("email = ?", authDetails.Email).First(&authUser)
-	fmt.Println(authUser)
 	if authUser.Email == "" {
 		var err helpers.Error
 		err = helpers.SetError(err, "Correo o Contraseña Incorrectos")

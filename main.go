@@ -10,9 +10,10 @@ import (
 	"github.com/Dalnec/go-gorm-restapi-psql/middleware"
 	"github.com/Dalnec/go-gorm-restapi-psql/models"
 	"github.com/Dalnec/go-gorm-restapi-psql/routes"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/rs/cors"
+	// "github.com/rs/cors"
 )
 
 
@@ -40,6 +41,10 @@ func main() {
 	db.DB.AutoMigrate(models.Product{})
 	db.DB.AutoMigrate(models.Prices{})
 	db.DB.AutoMigrate(models.User{})
+
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type", "Authorization"})
 
 	r:=mux.NewRouter()
 	// Index route
@@ -78,6 +83,7 @@ func main() {
 	s.HandleFunc("/users", routes.PostUserHandler).Methods("POST")
 	s.HandleFunc("/users/{id}", routes.DeleteUserHandler).Methods("DELETE")
 
-	handler := cors.Default().Handler(r)
-	http.ListenAndServe(":" + port, handler)
+	// handler := cors.Default().Handler(r)
+	corsRouter := handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(r)
+	http.ListenAndServe(":" + port, corsRouter)
 }
