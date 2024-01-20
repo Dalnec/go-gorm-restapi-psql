@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-
 	"gorm.io/gorm"
 )
 
@@ -53,12 +52,23 @@ type Prices struct {
 	Price		float32 `sql:"type:decimal(10,2);" json:"price"`
 	MinPrice 	float32 `sql:"type:decimal(10,2);" json:"minprice"`
 	Active      bool   `gorm:"default:true" json:"active"`
+	Gain		float32 `sql:"type:decimal(10,2);" json:"gain"`
 
 	Product    Product `json:"product"`
 	Measure    Measure `json:"measure"`
 
 	ProductID   uint   `json:"product_id"`
 	MeasureID	uint   `json:"measure_id"`
+}
+
+type CostPrice struct {
+	gorm.Model
+	Description string `gorm:"not null" json:"description"`
+	Cost		float32 `sql:"type:decimal(10,2);" json:"cost"`
+	DollarCost	float32 `sql:"type:decimal(10,2);" json:"dollarcost"`
+	Product    	Product `json:"product"`
+
+	ProductID   uint   `json:"product_id"`
 }
 
 func (p Product) MarshalJSON() ([]byte, error) {
